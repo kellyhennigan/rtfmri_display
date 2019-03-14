@@ -415,22 +415,26 @@ class Thermometer(PyGameVisualizer):
         self.screen.fill(self.bg_color)
         self.draw_box()
         if (not self.useEngine):
+            # if useLogData:
+            #     val = fbval1.pop(0)
+            #     self.update_temp(val)
+            # else:
            self.update_temp(random)
         else:
-		   # this delay is necessary because we do not have access to the actual scan. It will only be avaiable after Tr seconds plus the transfer and conversion time
-           self.engine.actualVolume = self.actualVolumeIndex() - self.delay
-           if (self.engine.actualVolume > 0):
-               classe, self.temp, otherResponses = self.engine.getFeedbackValue()
-               condIndex = self.designObj.getConditionIndex(self.engine.actualVolume)
-               print("self.temp : %s " % self.temp);
-               print("otherResponses[0]: %s " % str(otherResponses[0]));
-               if self.feedbackMapping[condIndex] == 2:
-                  self.temp = otherResponses[0];
-               self.temp = max(min(float(self.temp), 1), 0) * 100.0
-               print("Value chosen : %f " % self.temp);
-               self._draw_temp()
-           else:
-               self.temp = 0
+    	    # this delay is necessary because we do not have access to the actual scan. It will only be avaiable after Tr seconds plus the transfer and conversion time
+            self.engine.actualVolume = self.actualVolumeIndex() - self.delay
+            if (self.engine.actualVolume > 0):
+                classe, self.temp, otherResponses = self.engine.getFeedbackValue()
+                condIndex = self.designObj.getConditionIndex(self.engine.actualVolume)
+                print("self.temp : %s " % self.temp);
+                print("otherResponses[0]: %s " % str(otherResponses[0]));
+                if self.feedbackMapping[condIndex] == 2:
+                    self.temp = otherResponses[0];
+                self.temp = max(min(float(self.temp), 1), 0) * 100.0
+                print("Value chosen : %f " % self.temp);
+                self._draw_temp()
+            else:
+                self.temp = 0
         pygame.display.flip()
 		
     def run(self, random=False):
