@@ -35,7 +35,7 @@ def _get_device(user_os):
 def start_scanner(user_os='linux'):
     """Send the start scan trigger to the scanner."""
 
-    user_os='mac'
+    #user_os='mac'
     device = _get_device(user_os)
     
 
@@ -47,5 +47,7 @@ def start_scanner(user_os='linux'):
     #time.sleep(0.05)
 
     # Send an out pulse
+    print("\n\n\nsending pulse to start scanner now...")
     ser.write('[t]\n');
     ser.close()
+    print("done.\n\n\n")
