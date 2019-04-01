@@ -30,8 +30,9 @@ echo you entered: $rawfolder
 cd ../data/${subject}
 outDir=$(pwd)
 tempfile=${outDir}/temp
-outfile==${outDir}/run${runnum}_voltimes
-
+outfile=${outDir}/run${runnum}_voltimes
+touch $tempfile
+touch $outfile
 
 # go to raw data folder
 cd ../../FriendENGINE/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans
