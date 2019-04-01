@@ -46,7 +46,7 @@ done
 
 cd $outDir
 awk '{print $2 "\t" $3}' $tempfile > $outfile
-
+rm $tempfile
 
 
 
