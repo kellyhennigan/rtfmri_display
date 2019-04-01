@@ -16,7 +16,7 @@ nfuncvolumes = '160' # number of functional vols in the fmri scans
 
 baselinecond = 'REST'  # baseline condition - this needs to be spelled the same way as in the design file
 
-rawdatapath = os.path.join(maindir,'FriendEngine/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans/serie10/vol_') # changing the directory of the volumes
+rawdatapath = os.path.join(maindir,'FriendEngine/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans/%s/vol_') 
 
 activationLevel = '.01' # activation level 
 
@@ -30,6 +30,31 @@ obj = Thermometer() # get an instance of thermometer from visualizers library
 
 #######################################################################################
 
+
+
+#########  get subjid 
+def getSubjID():
+
+    subjid = raw_input('subject id: ')
+    print('\nyou entered: '+subjid+'\n')
+    return subjid
+
+
+#########  get run number
+def getRunnum():
+
+    runnum = raw_input('run number: ')
+    print('\nyou entered: '+runnum+'\n')
+    return runnum
+
+
+#########  get raw data path for this run
+def getRawDataPath():
+
+    rawdatafolder = raw_input('enter name of raw data folder (e.g., serie01 ): ')
+    print('\nyou entered: '+rawdatafolder+'\n')
+    this_rawdatapath = rawdatapath % (rawdatafolder)
+    return this_rawdatapath
 
 
 #########  initialize thermometer object
@@ -51,19 +76,51 @@ def initDisplayObj():
     obj.feedbackMapping.append(2) # RIGHT
 
   
-# initialization of the engine. Need to be done here to run preproc before the scanning
-def initEngine(subjid,runnum):
+######### initialization of the engine. Need to be done here to run preproc before the scanning
+def initEngine(subjid,runnum,this_rawdatapath):
 
-    obj.useEngine = useEngine
-    obj.dry_run = dry_run    
-    #obj.dispLogData = dispLogData 
     print('Connecting to the engine\n')
     obj.connectEngine()
     print('Configuring the Engine\n')
     obj.configureEngine()
-    study_params(subjid,runnum) 
+    setEngineParams(subjid,runnum,this_rawdatapath) 
     print('Starting initial processes\n')
     obj.startEngine()
+
+
+############ give study params to FRIENDengine 
+def setEngineParams(subjid,runnum,this_rawdatapath):
+   
+    # set the study directory
+    obj.engine.setVariable('StudyDir', datadir);
+
+    # path to study design file 
+    obj.engine.setVariable('Design', designfilepath);
+
+    # set the subject ID
+    obj.engine.setVariable('Subject', subjid);
+
+    # path to subject's anatomical file
+    obj.engine.setVariable('RAI', 'outputdirrai.nii');   
+
+    # path to subject's single functional volume 
+    obj.engine.setVariable('RFI', 'outputdirrfi.nii');   
+
+    # number of functional volumes
+    obj.engine.setVariable('FuncVolumes', nfuncvolumes);
+
+    # baseline condition
+    obj.engine.setVariable('BaselineCondition',baselinecond);
+
+    # where are the raw fmri vols from the scanner
+    obj.engine.setVariable('Prefix', this_rawdatapath);
+
+    # changing the activation level
+    obj.engine.setVariable('ActivationLevel', activationLevel);
+
+    # suffix for this run
+    obj.engine.setVariable('CurrentRunSuffix', 'RUN0' + str(runnum));   
+
 
 
 ############ code to run during feedback
@@ -90,71 +147,26 @@ def run_loop():
 		   return;
 
 
-############ give study params to FRIENDengine 
-def study_params(subjid,runnum=1):
-   
-    # set the study directory
-    obj.engine.setVariable('StudyDir', datadir);
-
-    # path to study design file 
-    obj.engine.setVariable('Design', designfilepath);
-
-    # set the subject ID
-    obj.engine.setVariable('Subject', subjid);
-
-    # path to subject's anatomical file
-    obj.engine.setVariable('RAI', 'outputdirrai.nii');   
-
-    # path to subject's single functional volume 
-    obj.engine.setVariable('RFI', 'outputdirrfi.nii');   
-
-    # number of functional volumes
-    obj.engine.setVariable('FuncVolumes', nfuncvolumes);
-
-    # baseline condition
-    obj.engine.setVariable('BaselineCondition',baselinecond);
-
-    # where are the raw fmri vols from the scanner
-    obj.engine.setVariable('Prefix', rawdatapath);
-
-    # changing the activation level
-    obj.engine.setVariable('ActivationLevel', activationLevel);
-
-    # suffix for this run
-    obj.engine.setVariable('CurrentRunSuffix', 'RUN0' + str(runnum));   
-
-
-
-#########  get subjid 
-def getSubjID():
-
-    subjid = raw_input('subject id: ')
-    print('\nyou entered: '+subjid+'\n')
-    return subjid
-
-
-#########  get subjid 
-def getRunnum():
-
-    runnum = raw_input('run number: ')
-    print('\nyou entered: '+runnum+'\n')
-    return runnum
-
-
 
 #########  main function
 if __name__ == '__main__':    
 
     print '\nstarting main function...\n'
 
-    initDisplayObj()
-
     subjid=getSubjID()
 
     runnum=getRunnum()
 
+    this_rawdatapath=getRawDataPath()
+
+    initDisplayObj()
+    
+    obj.useEngine = useEngine
+    obj.dry_run = dry_run    
+    #obj.dispLogData = dispLogData 
+    
     if (useEngine):
-        initEngine(subjid,runnum)
+        initEngine(subjid,runnum,this_rawdatapath)
 
     # run the main loop
     run_loop() 

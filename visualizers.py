@@ -306,6 +306,7 @@ class PyGameVisualizer(RoiVisualizer):
         print("sessionID received = %s" % (self.engine.sessionID));
 
     # right now its rigged to the an example scanned. We need to generalize it
+    # plugInType=3 is the motor plugin
     def configureEngine(self, option=1, plugInType=3, additionalFeedbacks = 1):
         # initiating processing
         self.engine.doTrain = False
