@@ -22,8 +22,9 @@ def alphanum_key(entry, only_digits=False):
                 converted_parts.append(part)
     return converted_parts
 
-def _get_device(user_os):
+def _get_device():
     
+    # get the name of the operating system
     user_os=sys.platform
 
     # mac
@@ -31,7 +32,7 @@ def _get_device(user_os):
         device = '/dev/tty.usbmodem123451'
     
     # windows
-    elif user_os=="windows":
+    elif user_os=='windows':
         #should be a COM port (eg. COM 4)
         raise Exception("Not tested on windows.")
     
@@ -41,13 +42,12 @@ def _get_device(user_os):
     
     return device
 
-def start_scanner(user_os='linux'):
+def start_scanner():
     """Send the start scan trigger to the scanner."""
 
-    #user_os='mac'
-    device = _get_device(user_os)
+    #user_os='darwin'
+    device = _get_device()
     
-
     if not os.path.exists(device):
         sys.stderr.write("ERROR: Serial device %r not found!\n\n" % (device))
         return 1
