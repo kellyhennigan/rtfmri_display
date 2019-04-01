@@ -23,13 +23,22 @@ def alphanum_key(entry, only_digits=False):
     return converted_parts
 
 def _get_device(user_os):
-    if user_os == 'mac':
+    
+    user_os=sys.platform
+
+    # mac
+    if user_os == 'darwin':
         device = '/dev/tty.usbmodem123451'
+    
+    # windows
     elif user_os=="windows":
         #should be a COM port (eg. COM 4)
         raise Exception("Not tested on windows.")
+    
+    # linux
     else:
          device = '/dev/ttyACM1'
+    
     return device
 
 def start_scanner(user_os='linux'):
