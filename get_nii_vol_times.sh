@@ -41,7 +41,7 @@ volfiles=${rawfolder}/vol*
 # save out timing info to a temp file
 for f in $volfiles
 do
-	stat $f | grep -w "Modify: " >> $tempfile
+	stat $f | grep -w "Modify:" >> $tempfile
 done
 
 cd $outDir
