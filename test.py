@@ -62,7 +62,7 @@ def initDisplayObj():
 
     #set the baseline condition
     obj.setBaseline(baselinecond)
-  
+
     # read design file
     obj.readDesignFile(designfilepath)
 
@@ -127,7 +127,8 @@ def setEngineParams(subjid,runnum,this_rawdatapath):
 def run_loop():
   
 	runExit = False
-	   # stat the scanning. Here we need to put the code to send the signal to the scanner
+	
+    # start scanning
 	obj.start() 
 	while not runExit:
 		# pygame stuff 
@@ -159,10 +160,13 @@ if __name__ == '__main__':
 
     this_rawdatapath=getRawDataPath()
 
+    logfile=os.path.join(datadir,subjid,'eventtimes_RUN'+runnum)
+
     initDisplayObj()
     
     obj.useEngine = useEngine
     obj.dry_run = dry_run    
+    obj.logfile = logfile
     #obj.dispLogData = dispLogData 
     
     if (useEngine):

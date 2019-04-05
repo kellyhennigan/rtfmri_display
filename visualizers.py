@@ -8,6 +8,7 @@ import os
 import logging
 from random import randint, random
 from time import sleep
+from datetime import datetime
 
 import pygame
 import numpy as np
@@ -241,8 +242,9 @@ class PyGameVisualizer(RoiVisualizer):
     cueDisplayTime=1
     cueDisplaying=False
     useEngine = False
-    delay = 1
+    delay = 1   # this is in units of TRs - e.g., 1 means get feedback from 1 TR ago
     feedbackMapping = []
+    logfile = ''
 	
     def __init__(self, TR=2, timeout=0):
         super(PyGameVisualizer, self).__init__(timeout)
@@ -257,6 +259,16 @@ class PyGameVisualizer(RoiVisualizer):
         self.lastVolumeIndex=-1
         self.lastBlockStartTime=0
         self.dry_run = True
+
+    def log_eventtime(self, eventname='event'):    
+        if self.logfile:
+            if os.path.isfile(self.logfile):
+                f=open(self.logfile,'a+')
+            else:
+                f=open(self.logfile,'w')
+            f.write(str(datetime.now())+', '+eventname+'\n')
+            f.close()
+
 
     def setBaseline(self, condition):
         self.designObj.baselineCondition = condition
@@ -290,10 +302,11 @@ class PyGameVisualizer(RoiVisualizer):
     
     def start(self):
         self.lastVolumeIndex = -1
-        self.startTime = time.time()
         if not self.dry_run:
            start_scanner()
            print("STARTED SCANNER")
+        self.startTime = time.time()
+        self.log_eventtime('start time')    
         if (not self.pygame_live):
            self.start_display()
 
@@ -424,8 +437,10 @@ class Thermometer(PyGameVisualizer):
         else:
     	    # this delay is necessary because we do not have access to the actual scan. It will only be avaiable after Tr seconds plus the transfer and conversion time
             self.engine.actualVolume = self.actualVolumeIndex() - self.delay
+            print("self.engine.actualVolume: "+str(self.engine.actualVolume))
             if (self.engine.actualVolume > 0):
                 classe, self.temp, otherResponses = self.engine.getFeedbackValue()
+                self.log_eventtime('fbval vol'+str(int(self.engine.actualVolume)))
                 condIndex = self.designObj.getConditionIndex(self.engine.actualVolume)
                 print("self.temp : %s " % self.temp);
                 print("otherResponses[0]: %s " % str(otherResponses[0]));

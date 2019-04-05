@@ -59,4 +59,6 @@ def start_scanner():
     print("\n\n\nsending pulse to start scanner now...")
     ser.write('[t]\n');
     ser.close()
+    pulsetime=datetime.now()
     print("done.\n\n\n")
+    return pulsetime
