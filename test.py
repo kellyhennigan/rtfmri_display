@@ -16,7 +16,7 @@ nfuncvolumes = '160' # number of functional vols in the fmri scans
 
 baselinecond = 'REST'  # baseline condition - this needs to be spelled the same way as in the design file
 
-rawdatapath = os.path.join(maindir,'FriendEngine/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans/%s/vol_') 
+rawdatapath = os.path.join(maindir,'FriendENGINE/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans/%s/vol_') 
 
 activationLevel = '.01' # activation level 
 

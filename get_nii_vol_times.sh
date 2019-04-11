@@ -35,7 +35,7 @@ touch $tempfile
 touch $outfile
 
 # go to raw data folder
-cd ../../FriendEngine/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans
+cd ../../FriendENGINE/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans
 volfiles=${rawfolder}/vol*
 
 # save out timing info to a temp file
