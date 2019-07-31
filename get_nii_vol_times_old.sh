@@ -3,28 +3,40 @@
 # script to get the timestamp of creation time for nifti volumes
 
 
-# vol nii folder
+# subject id to process
+msg='enter subject ID:' 
+echo $msg
+read subject
+echo you entered: $subject
+
+# run number
+msg='enter run number:' 
+echo $msg
+read runnum
+echo you entered: $runnum
+
+# raw data folder
 msg='enter raw data folder (e.g., serie03):' 
 echo $msg
-read voldir
-echo you entered: $voldir
+read rawfolder
+echo you entered: $rawfolder
 
 
 ################################################################################
 ################################################################################
 
-# go to nii vol data folder 
-cd /home/cniuser/rt/scannerConverter/output_scans
 
-# get list of nifti volume files
-volfiles=${voldir}/vol*
-
-# define text file to save out vol times 
+# define output files (e.g., 'data/subj009/run1_voltimes')
+cd ../data/${subject}
 outDir=$(pwd)
 tempfile=${outDir}/temp
-outfile=${outDir}/${voldir}_voltimes
+outfile=${outDir}/run${runnum}_voltimes
 touch $tempfile
 touch $outfile
+
+# go to raw data folder
+cd ../../FriendENGINE/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans
+volfiles=${rawfolder}/vol*
 
 # save out timing info to a temp file
 for f in $volfiles

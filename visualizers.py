@@ -242,7 +242,7 @@ class PyGameVisualizer(RoiVisualizer):
     cueDisplayTime=1
     cueDisplaying=False
     useEngine = False
-    delay = 1   # this is in units of TRs - e.g., 1 means get feedback from 1 TR ago
+    delay = 2   # this is in units of TRs - e.g., 1 means get feedback from 1 TR ago
     feedbackMapping = []
     logfile = ''
 	

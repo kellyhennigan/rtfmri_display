@@ -24,7 +24,7 @@ useEngine = True # to use the engine (so thermometer fluctuates based on fmri da
 
 #dispLogData = True # if true and useEngine=False, this means display data from a log file
 
-dry_run = True  # if dry_run equals True, the scanner will NOT be triggered
+dry_run = False  # if dry_run equals True, the scanner will NOT be triggered
 
 obj = Thermometer() # get an instance of thermometer from visualizers library
 
