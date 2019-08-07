@@ -10,24 +10,25 @@ read indir
 echo you entered: $indir
 
 # out file path
-msg='enter filepath to save out file times to (e.g., /home/cniuser/rt/scannerConverter/output_scans/serie07_dicom_times):' 
+outdir=/home/cniuser/rt/scannerConverter/output_scans
+msg='enter raw data folder (e.g., serie03):' 
 echo $msg
-read outpath
-echo you entered: $outpath
+read seriesnum
+echo you entered: $seriesnum
 
 
 ################################################################################
 ################################################################################
 
-
-outfile=$(basename "${outpath}") # filename for out file
-outdir=$(dirname "${outpath}") 	 # directory for out file 
-
+#outdir=$(dirname "${outpath}") 	 # directory for out file 
 
 # create outdir if it doesnt already exist
 if [ ! -d "$outdir" ]; then
 	mkdir $outdir
 fi 
+
+outfile=${seriesnum}_dicom_times # outfile name
+outpath=${outdir}/${outfile}
 
 # create the out & temp files
 touch $outpath
