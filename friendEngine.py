@@ -165,8 +165,11 @@ class Engine(object):
       return response;
    
    # get feedback information
-   def getFeedbackValue(self):
+   def getFeedbackValue(self, volumeIndex=NULL):
       global bufferLines;
+      if volumeIndex==NULL:
+         volumeIndex=self.actualVolume;
+
       responseThread = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
       responseThread.connect(self.connectionInfo);
       print("Sending TEST command");
@@ -175,7 +178,7 @@ class Engine(object):
 
       response = self.readsocket(responseThread);
       responseThread.send('TEST\n');
-      responseThread.send(str(self.actualVolume) + '\n');
+      responseThread.send(str(volumeIndex) + '\n');
 
       classe = self.readsocket(responseThread);
       percentage = self.readsocket(responseThread);

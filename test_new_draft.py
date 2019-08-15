@@ -1,7 +1,7 @@
 import os
 import sys
-from visualizers import *
-
+from visualizers_new_draft import *
+from time import time
 
 #######################################################################################
 # STUDY PARAMETERS
@@ -16,15 +16,17 @@ nfuncvolumes = '160' # number of functional vols in the fmri scans
 
 baselinecond = 'REST'  # baseline condition - this needs to be spelled the same way as in the design file
 
-rawdatapath = os.path.join(maindir,'FriendENGINE/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans/%s/vol_') 
+rawdatapath = os.path.join(maindir,'FriendEngine/Friend_Engine_Sources/Friend_Engine_Sources/Application/output_scans/serie10/vol_') # changing the directory of the volumes
 
 activationLevel = '.01' # activation level 
 
 useEngine = False # to use the engine (so thermometer fluctuates based on fmri data)
 
-#dispLogData = True # if true and useEngine=False, this means display data from a log file
+dispLogData = True # if true and useEngine=False, this means display data from a log file
 
 dry_run = True  # if dry_run equals True, the scanner will NOT be triggered
+
+refresh_rate = .5;
 
 obj = Thermometer() # get an instance of thermometer from visualizers library
 
@@ -32,37 +34,12 @@ obj = Thermometer() # get an instance of thermometer from visualizers library
 
 
 
-#########  get subjid 
-def getSubjID():
-
-    subjid = input('subject id: ')
-    print('\nyou entered: '+subjid+'\n')
-    return subjid
-
-
-#########  get run number
-def getRunnum():
-
-    runnum = input('run number: ')
-    print('\nyou entered: '+runnum+'\n')
-    return runnum
-
-
-#########  get raw data path for this run
-def getRawDataPath():
-
-    rawdatafolder = input('enter name of raw data folder (e.g., serie01 ): ')
-    print('\nyou entered: '+rawdatafolder+'\n')
-    this_rawdatapath = rawdatapath % (rawdatafolder)
-    return this_rawdatapath
-
-
 #########  initialize thermometer object
 def initDisplayObj():
 
     #set the baseline condition
     obj.setBaseline(baselinecond)
-
+  
     # read design file
     obj.readDesignFile(designfilepath)
 
@@ -75,21 +52,52 @@ def initDisplayObj():
     obj.feedbackMapping.append(0) # REST
     obj.feedbackMapping.append(2) # RIGHT
 
+    # define whether using the engine, dry_run, etc.
+	obj.useEngine = useEngine
+    obj.dry_run = dry_run     
+    obj.dispLogData = dispLogData
+
   
-######### initialization of the engine. Need to be done here to run preproc before the scanning
-def initEngine(subjid,runnum,this_rawdatapath):
+# initialization of the engine. Need to be done here to run preproc before the scanning
+def initEngine(subjid,runnum):
 
     print('Connecting to the engine\n')
     obj.connectEngine()
     print('Configuring the Engine\n')
     obj.configureEngine()
-    setEngineParams(subjid,runnum,this_rawdatapath) 
+    study_params(subjid,runnum) 
     print('Starting initial processes\n')
     obj.startEngine()
 
 
+############ code to run during feedback
+def run_loop():
+  
+    runExit = False
+       # stat the scanning. Here we need to put the code to send the signal to the scanner
+    obj.start() 
+    last_probe = time()
+    while not runExit:
+        # pygame stuff 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        # if we have new volume     
+        if (time()-last_probe >= refresh_rate):
+           # act accordingly
+           obj.changeInternalState()
+           last_probe = time();
+        else:
+           # just refresh display (right now just clear display after cue presentation)
+           obj.refreshDisplay()
+           
+        if (obj.endScan()):
+           return;
+
+
 ############ give study params to FRIENDengine 
-def setEngineParams(subjid,runnum,this_rawdatapath):
+def study_params(subjid,runnum=1):
    
     # set the study directory
     obj.engine.setVariable('StudyDir', datadir);
@@ -113,7 +121,7 @@ def setEngineParams(subjid,runnum,this_rawdatapath):
     obj.engine.setVariable('BaselineCondition',baselinecond);
 
     # where are the raw fmri vols from the scanner
-    obj.engine.setVariable('Prefix', this_rawdatapath);
+    obj.engine.setVariable('Prefix', rawdatapath);
 
     # changing the activation level
     obj.engine.setVariable('ActivationLevel', activationLevel);
@@ -123,29 +131,20 @@ def setEngineParams(subjid,runnum,this_rawdatapath):
 
 
 
-############ code to run during feedback
-def run_loop():
-  
-	runExit = False
-	
-    # start scanning
-	obj.start() 
-	while not runExit:
-		# pygame stuff 
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				pygame.quit()
-				quit()
-		# if we have new volume     
-		if (obj.hasNewVolume()):
-		   # act accordingly
-		   obj.changeInternalState()
-		else:
-		   # just refresh display (right now just clear display after cue presentation)
-		   obj.refreshDisplay()
-		   
-		if (obj.endScan()):
-		   return;
+#########  get subjid 
+def getSubjID():
+
+    subjid = input('subject id: ')
+    print('\nyou entered: '+subjid+'\n')
+    return subjid
+
+
+#########  get subjid 
+def getRunnum():
+
+    runnum = input('run number: ')
+    print('\nyou entered: '+runnum+'\n')
+    return runnum
 
 
 
@@ -154,23 +153,14 @@ if __name__ == '__main__':
 
     print('\nstarting main function...\n')
 
+    initDisplayObj()
+
     subjid=getSubjID()
 
     runnum=getRunnum()
 
-    this_rawdatapath=getRawDataPath()
-
-    logfile=os.path.join(datadir,subjid,'eventtimes_RUN'+runnum)
-
-    initDisplayObj()
-    
-    obj.useEngine = useEngine
-    obj.dry_run = dry_run    
-    obj.logfile = logfile
-    #obj.dispLogData = dispLogData 
-    
     if (useEngine):
-        initEngine(subjid,runnum,this_rawdatapath)
+        initEngine(subjid,runnum)
 
     # run the main loop
     run_loop() 

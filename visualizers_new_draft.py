@@ -240,7 +240,7 @@ class PyGameVisualizer(RoiVisualizer):
     engine = Engine()
     cueDisplayTime=1
     cueDisplaying=False
-    useEngine = False
+    useEngine = True
     dispLogData = True
     delay = 1
     feedbackMapping = []
@@ -258,6 +258,15 @@ class PyGameVisualizer(RoiVisualizer):
         self.lastVolumeIndex=-1
         self.lastBlockStartTime=0
         self.dry_run = True
+
+    def log_eventtime(self, eventname='event'):    
+        if self.logfile:
+            if os.path.isfile(self.logfile):
+                f=open(self.logfile,'a+')
+            else:
+                f=open(self.logfile,'w')
+            f.write(str(datetime.now())+', '+eventname+'\n')
+            f.close()
 
     def setBaseline(self, condition):
         self.designObj.baselineCondition = condition
@@ -293,12 +302,19 @@ class PyGameVisualizer(RoiVisualizer):
         self.lastVolumeIndex = -1
         self.startTime = time.time()
         if not self.dry_run:
-            start_scanner()
+            self.startTime = start_scanner()
             print("STARTED SCANNER")
+        else:
+            print("started but not triggering scanner...")
+            self.startTime = time.time()
+        self.log_eventtime('start time')    
         if (not self.pygame_live):
             self.start_display()
         if self.dispLogData:
             self.loadvalsfromlogfile()
+
+
+
 
     def loadvalsfromlogfile(self):
         logfile='/Users/kelly/neurofeedback/rt/data/subj007/dumpFile_RUN01.txt'
@@ -458,14 +474,27 @@ class Thermometer(PyGameVisualizer):
     	    # this delay is necessary because we do not have access to the actual scan. It will only be avaiable after Tr seconds plus the transfer and conversion time
             self.engine.actualVolume = self.actualVolumeIndex() - self.delay
             if (self.engine.actualVolume > 0):
-                classe, self.temp, otherResponses = self.engine.getFeedbackValue()
+                probe_volume = self.engine.actualVolume;
+                classe, self.temp, otherResponses = self.engine.getFeedbackValue(probe_volume)
+                while classe == 0:
+                    probe_volume = probe_volume-1;
+                    if probe_volume > 0:
+                       classe, self.temp, otherResponses = self.engine.getFeedbackValue(probe_volume)
+                    else:
+                       break;   
                 condIndex = self.designObj.getConditionIndex(self.engine.actualVolume)
                 print("self.temp : %s " % self.temp);
                 print("otherResponses[0]: %s " % str(otherResponses[0]));
-                if self.feedbackMapping[condIndex] == 2:
-                    self.temp = otherResponses[0];
-                self.temp = max(min(float(self.temp), 1), 0) * 100.0
-                print("Value chosen : %f " % self.temp);
+
+                if classe==0:
+                    self.temp=0;
+                    self.log_eventtime('volume: %d probe volume: %d no fbval ' % (self.engine.actualVolume, probe_volume))
+                else:
+                    if self.feedbackMapping[condIndex] == 2:
+                        self.temp = otherResponses[0];
+                    self.temp = max(min(float(self.temp), 1), 0) * 100.0
+                    print("Value chosen : %f " % self.temp);
+                    self.log_eventtime('volume: %d probe volume: %d fbval %f' % (self.engine.actualVolume, probe_volume, self.temp))
                 self._draw_temp()
             else:
                 self.temp = 0

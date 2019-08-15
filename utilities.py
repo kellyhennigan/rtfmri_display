@@ -1,6 +1,6 @@
 """Utilities for starting a scan and collecting pulse timings (to do)"""
 import re
-import serial
+#import serial
 import sys, signal, time, os
 from datetime import datetime
 
