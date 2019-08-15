@@ -53,7 +53,7 @@ def initDisplayObj():
     obj.feedbackMapping.append(2) # RIGHT
 
     # define whether using the engine, dry_run, etc.
-	obj.useEngine = useEngine
+    obj.useEngine = useEngine
     obj.dry_run = dry_run     
     obj.dispLogData = dispLogData
 
